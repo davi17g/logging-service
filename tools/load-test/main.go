@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"flag"
 	"math/rand"
 	"net/http"
 	"strconv"
@@ -109,11 +110,13 @@ func doWorkCompletion(shutdown chan struct{}) {
 
 //=============================================================================
 func main() {
+	duration := flag.Int("time", 2, "Specify load-test duration in minutes")
+	flag.Parse()
 	rand.Seed(time.Now().UnixNano())
 	shutdown := make(chan struct{})
 	go doWorkImpression(shutdown)
 	go doWorkClick(shutdown)
 	go doWorkCompletion(shutdown)
-	time.Sleep(2 * time.Minute)
+	time.Sleep(time.Duration(*duration) * time.Minute)
 	close(shutdown)
 }

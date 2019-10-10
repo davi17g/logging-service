@@ -27,6 +27,7 @@ func (ad AdType) String() string {
 //=============================================================================
 type Recorder interface {
 	Record() *bson.M
+	fmt.Stringer
 }
 
 //=============================================================================
@@ -51,6 +52,11 @@ func (c *Completion) Record() *bson.M {
 }
 
 //=============================================================================
+func (c Completion) String() string {
+	return fmt.Sprintf("date-time: %s transaction-id %s", c.DateTime, c.TransactionID)
+}
+
+//=============================================================================
 type Impression struct {
 	DateTime      string `json:"date_time"`
 	TransactionID string `json:"transaction_id"`
@@ -67,6 +73,13 @@ func (i *Impression) Record() *bson.M {
 		"ad-type":        i.Adtype.String(),
 		"user-id":        i.UserID,
 	}
+}
+
+//=============================================================================
+func (i Impression) String() string {
+	return fmt.Sprintf(
+		"date-time: %s transaction-id: %s ad-type %s user-id %s",
+		i.DateTime, i.TransactionID, i.Adtype, i.UserID)
 }
 
 //=============================================================================
@@ -88,4 +101,15 @@ func (c *Click) Record() *bson.M {
 		"time-to-click":  c.TimeToClick,
 		"user-id":        c.UserId,
 	}
+}
+
+//=============================================================================
+func (c Click) String() string {
+	return fmt.Sprintf(
+		"date-time: %s " +
+			"transaction-id: %s " +
+			"ad-type: %s " +
+			"time-to-click %s " +
+			"user-id: %s",
+		c.DateTime, c.TransactionID, c.Adtype, c.TimeToClick, c.UserId)
 }

@@ -1,5 +1,5 @@
 # Logging-Service
-This is simple logging service - gets an events as http requests and puts them to the database.
+This is simple logging service - gets an events as http requests and writes it to a database.
 
 ## Getting Started
 

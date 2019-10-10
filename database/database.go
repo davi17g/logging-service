@@ -1,4 +1,4 @@
-package main
+package database
 
 import (
 	"context"
@@ -14,12 +14,12 @@ import (
 )
 
 //=============================================================================
-type dataBaseBroker struct {
+type DataBaseBroker struct {
 	client *mongo.Client
 }
 
 //=============================================================================
-func (dbb *dataBaseBroker) setRecord(
+func (dbb *DataBaseBroker) SetRecord(
 	database string, record interface{}) error {
 
 	var collection *mongo.Collection
@@ -53,7 +53,7 @@ func (dbb *dataBaseBroker) setRecord(
 }
 
 //=============================================================================
-func getNewDataBaseBroker(addr string, port int) (*dataBaseBroker, error) {
+func GetNewDataBaseBroker(addr string, port int) (*DataBaseBroker, error) {
 	client, err := mongo.NewClient(
 		options.Client().ApplyURI(
 			fmt.Sprintf("mongodb://%s:%d", addr, port)))
@@ -71,5 +71,15 @@ func getNewDataBaseBroker(addr string, port int) (*dataBaseBroker, error) {
 		return nil, err
 	}
 
-	return &dataBaseBroker{client: client}, nil
+	return &DataBaseBroker{client: client}, nil
 }
+
+//=============================================================================
+func (dbb *DataBaseBroker) Close() error {
+	ctx, _ := context.WithTimeout(context.Background(), 3*time.Second)
+	if err := dbb.client.Disconnect(ctx); err != nil {
+		return err
+	}
+	return nil
+}
+

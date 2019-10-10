@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"fmt"
@@ -12,7 +12,14 @@ import (
 )
 
 //=============================================================================
-func (server *httpServer) start() error {
+type httpServer struct {
+	m            metrics.Meter
+	getRequestCH chan *records.Request
+	addr         string
+}
+
+//=============================================================================
+func (server *httpServer) Start() error {
 	http.HandleFunc("/click", server.click)
 	http.HandleFunc("/impression", server.impression)
 	http.HandleFunc("/completion", server.completion)
@@ -69,7 +76,6 @@ func (server *httpServer) click(w http.ResponseWriter, req *http.Request) {
 //=============================================================================
 func (server *httpServer) completion(
 	w http.ResponseWriter, req *http.Request) {
-
 	if req.Method == http.MethodPost {
 		server.m.Mark(1)
 		body, err := ioutil.ReadAll(req.Body)
@@ -89,16 +95,13 @@ func (server *httpServer) completion(
 }
 
 //=============================================================================
-type httpServer struct {
-	m            metrics.Meter
-	getRequestCH chan *records.Request
-	addr         string
+func (server *httpServer) Close() {
+	server.m.Stop()
 }
 
 //=============================================================================
-func getNewHttpServer(
+func GetNewHttpServer(
 	addr string, port int, getRequestCH chan *records.Request) *httpServer {
-
 	go metrics.Log(metrics.DefaultRegistry, 5*time.Second, log.New())
 	return &httpServer{
 		m:            metrics.GetOrRegisterMeter("requests", nil),

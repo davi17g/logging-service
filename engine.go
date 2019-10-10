@@ -1,33 +1,15 @@
 package main
 
 import (
-	"encoding/json"
-
+	"github.com/davi17g/logging-service/database"
 	"github.com/davi17g/logging-service/records"
+	"github.com/davi17g/logging-service/utils"
 	log "github.com/sirupsen/logrus"
 )
 
 //=============================================================================
-func convJsonToObject(req *records.Request) (records.Recorder, error) {
-
-	var rc records.Recorder
-	switch req.Handler {
-	case records.ImpressionHandler:
-		rc = &records.Impression{}
-	case records.ClickHandler:
-		rc = &records.Click{}
-	case records.CompletionHandler:
-		rc = &records.Completion{}
-	}
-	if err := json.Unmarshal(req.Body, rc); err != nil {
-		return nil, err
-	}
-	return rc, nil
-}
-
-//=============================================================================
 type dataBaseWriter struct {
-	dataBase *dataBaseBroker
+	dataBase *database.DataBaseBroker
 }
 
 //=============================================================================
@@ -39,11 +21,19 @@ func (dbw *dataBaseWriter) writeToDB(
 		case <-shutdown:
 			return
 		case obj := <-setObjectCH:
-			if err := dbw.dataBase.setRecord("logs", obj); err != nil {
+			if err := dbw.dataBase.SetRecord("logs", obj); err != nil {
 				log.Errorf("Got an insertion error: %s", err)
 			}
 		}
 	}
+}
+
+//=============================================================================
+func (dbw *dataBaseWriter) Close() error {
+	if err := dbw.dataBase.Close(); err != nil {
+		return err
+	}
+	return nil
 }
 
 //=============================================================================
@@ -59,7 +49,7 @@ func (w *workerPool) doWork(shutdown chan struct{}) {
 		case <-shutdown:
 			return
 		case request := <-w.getRequestCH:
-			obj, err := convJsonToObject(request)
+			obj, err := utils.ConvJsonToObject(request)
 			if err != nil {
 				log.Errorf("Unable to unmarshal json object: %s", err)
 				continue
@@ -78,7 +68,7 @@ func getNewWorkerPool(
 
 //=============================================================================
 func getNewDataBaseWriter(addr string, port int) (*dataBaseWriter, error) {
-	db, err := getNewDataBaseBroker(addr, port)
+	db, err := database.GetNewDataBaseBroker(addr, port)
 	if err != nil {
 		return nil, err
 	}

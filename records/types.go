@@ -106,10 +106,10 @@ func (c *Click) Record() *bson.M {
 //=============================================================================
 func (c Click) String() string {
 	return fmt.Sprintf(
-		"date-time: %s " +
-			"transaction-id: %s " +
-			"ad-type: %s " +
-			"time-to-click %s " +
+		"date-time: %s "+
+			"transaction-id: %s "+
+			"ad-type: %s "+
+			"time-to-click %s "+
 			"user-id: %s",
 		c.DateTime, c.TransactionID, c.Adtype, c.TimeToClick, c.UserId)
 }

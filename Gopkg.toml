@@ -28,3 +28,7 @@
 [[constraint]]
   branch = "master"
   name = "github.com/rcrowley/go-metrics"
+
+[[constraint]]
+  name = "github.com/stretchr/testify"
+  version = "1.4.0"

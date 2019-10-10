@@ -56,16 +56,16 @@ func TestServer(t *testing.T) {
 		expected records.Recorder
 	}{
 		"impression": {
-			record: recordToJson(t, impression),
-			handler: server.impression,
+			record:   recordToJson(t, impression),
+			handler:  server.impression,
 			expected: impression},
-		"click":      {
-			record: recordToJson(t, click),
-			handler: server.click,
+		"click": {
+			record:   recordToJson(t, click),
+			handler:  server.click,
 			expected: click},
 		"completion": {
-			record: recordToJson(t, completion),
-			handler: server.completion,
+			record:   recordToJson(t, completion),
+			handler:  server.completion,
 			expected: completion},
 	}
 

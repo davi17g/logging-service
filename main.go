@@ -7,7 +7,6 @@ import (
 	"syscall"
 
 	"github.com/davi17g/logging-service/records"
-	"github.com/davi17g/logging-service/server"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -41,11 +40,6 @@ func main() {
 	if err != nil {
 		log.Panic(err)
 	}
-	defer func() {
-		if err := dbWriter.Close(); err != nil {
-			log.Errorf("Unable to close dbWriter: %s", err)
-		}
-	}()
 
 	pool := getNewWorkerPool(getRequestCH, setObjectCH)
 	go dbWriter.writeToDB(setObjectCH, shutdown)
@@ -54,9 +48,8 @@ func main() {
 		go pool.doWork(shutdown)
 	}
 
-	srv := server.GetNewHttpServer(*srvAddr, *srvPort, getRequestCH)
-	defer srv.Close()
-	if err := srv.Start(); err != nil {
+	server := getNewHttpServer(*srvAddr, *srvPort, getRequestCH)
+	if err := server.start(); err != nil {
 		log.Panicf("Server was unable to start: %s", err)
 	}
 
